@@ -4,10 +4,11 @@ namespace Armincms\SofreApi\Snail;
 
 use Armincms\Snail\Http\Requests\SnailRequest;
 use Illuminate\Http\Request;
-use Armincms\Snail\Properties\ID; 
+use Armincms\Snail\Contracts\MustBeAuthenticated;
 use Armincms\Snail\Schema as SnailSchema;
+use Armincms\Snail\Properties\ID; 
 
-class Schema extends SnailSchema
+class Schema extends SnailSchema implements MustBeAuthenticated
 { 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -97,5 +98,14 @@ class Schema extends SnailSchema
     public static function relatableQuery(SnailRequest $request, $query)
     {
         return parent::relatableQuery($request, $query);
+    }
+    /**
+     * Determine the authentication guard.
+     * 
+     * @return string
+     */
+    public function authenticateVia() : string
+    {
+        return 'sanctum';
     }
 }

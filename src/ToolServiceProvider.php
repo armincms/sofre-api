@@ -22,7 +22,9 @@ class ToolServiceProvider extends ServiceProvider
 
         SnailServices::serving(function() {
             SnailServices::resources([
+                Snail\Food::class,
                 Snail\Restaurant::class,
+                Snail\RestaurantType::class,
             ]);
         });
 

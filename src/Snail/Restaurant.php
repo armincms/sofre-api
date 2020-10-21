@@ -93,22 +93,22 @@ class Restaurant extends Schema
                     });
                 }),
 
-            Map::make('Working Hours', 'working_hours')
-                ->using(function($attribute) {
-                    dd(func_get_args());
-                    return Collection::make($attribute, $value)->properties(function() { 
-                        return [
-                            Text::make('Name'),
+            // Map::make('Working Hours', 'working_hours')
+            //     ->using(function($attribute) {
+            //         dd(func_get_args());
+            //         return Collection::make($attribute, $value)->properties(function() { 
+            //             return [
+            //                 Text::make('Name'),
 
-                            Integer::make('Duration', 'pivot->duration'),
+            //                 Integer::make('Duration', 'pivot->duration'),
 
-                            Number::make('Cost', 'pivot->cost'),
+            //                 Number::make('Cost', 'pivot->cost'),
 
-                            Text::make('Note', 'pivot->note'),
-                        ];
-                    });
-                }),
+            //                 Text::make('Note', 'pivot->note'),
+            //             ];
+            //         });
+            //     }),
 
         ];
-    }  
+    }   
 }
