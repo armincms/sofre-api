@@ -7,8 +7,9 @@ use Illuminate\Support\ServiceProvider;
 use Laravel\Nova\Events\ServingNova;
 use Laravel\Nova\Nova;
 use Armincms\SofreApi\Http\Middleware\Authorize;
+use Armincms\Snail\Snail as SnailServices;
 
-class ToolServiceProvider extends ServiceProvider
+class ToolServiceProvider extends ServiceProvider 
 {
     /**
      * Bootstrap any application services.
@@ -18,6 +19,14 @@ class ToolServiceProvider extends ServiceProvider
     public function boot()
     { 
         $this->routes();   
+
+        SnailServices::serving(function() {
+            SnailServices::resources([
+                Snail\Restaurant::class,
+            ]);
+        });
+
+        \Config::set('snail.path', '/api');
     }
 
     /**
@@ -42,5 +51,5 @@ class ToolServiceProvider extends ServiceProvider
     public function register()
     {
         //
-    }
+    } 
 }
