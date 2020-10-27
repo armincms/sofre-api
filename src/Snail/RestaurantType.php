@@ -4,7 +4,7 @@ namespace Armincms\SofreApi\Snail;
 
 use Armincms\Snail\Http\Requests\SnailRequest;
 use Illuminate\Http\Request;
-use Armincms\Snail\Properties\{ID, Text, Map, BelongsToMany};  
+use Armincms\Snail\Properties\{ID, Text, Collection, BelongsToMany};  
 use Armincms\Snail\Snail;  
 
 class RestaurantType extends Schema
@@ -29,15 +29,19 @@ class RestaurantType extends Schema
 
             Text::make('Name'), 
 
-            Map::make('Image')
-                ->using(function($attribute) {
-                    return Text::make($attribute)
-                                ->nullable(true, ['']);
-                })
-                ->resolveUsing(function($logo, $resource) {
+            Collection::make('Image', function($resource) {
                     return $resource->getConversions($resource->getFirstMedia('image'), [
                         'logo', 'thumbnail', 'icon'
                     ]);     
+                })
+                ->properties(function($attribute) {
+                    return [
+                        Text::make('Thumbnail')->nullable(true, ['']),
+                        
+                        Text::make('Noobar')->nullable(true, ['']),
+                        
+                        Text::make('Main')->nullable(true, ['']),
+                    ];
                 }),
 
             Text::make('Restaurants', 'restaurants')
