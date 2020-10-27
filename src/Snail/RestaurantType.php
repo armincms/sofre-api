@@ -34,7 +34,7 @@ class RestaurantType extends Schema
                         'logo', 'thumbnail', 'icon'
                     ]);     
                 })
-                ->properties(function($attribute) {
+                ->properties(function() {
                     return [
                         Text::make('Thumbnail')->nullable(true, ['']),
                         
