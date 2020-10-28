@@ -24,7 +24,7 @@ class Restaurant extends Schema
      * @var array
      */
     public static $with = [
-        'type', 'areas', 'chain', 'foods'
+        'type', 'areas', 'chain', 'foods', 'categories'
     ];
 
     /**
@@ -47,6 +47,55 @@ class Restaurant extends Schema
             Map::make('Sending Method'), 
 
             Map::make('Payment Method'),
+
+            Collection::make('Image', function($resource) {
+                    return $resource->getConversions($resource->getFirstMedia('image'), [
+                        'logo', 'thumbnail', 'icon'
+                    ]);     
+                })
+                ->properties(function() {
+                    return [
+                        Text::make('Thumbnail')->nullable(true, ['']),
+                        
+                        Text::make('Noobar')->nullable(true, ['']),
+                        
+                        Text::make('Main')->nullable(true, ['']),
+                    ];
+                }),
+
+            Collection::make('Logo', function($resource) {
+                    return $resource->getConversions($resource->getFirstMedia('image'), [
+                        'logo', 'thumbnail', 'icon'
+                    ]);     
+                })
+                ->properties(function() {
+                    return [
+                        Text::make('Thumbnail')->nullable(true, ['']),
+                        
+                        Text::make('Noobar')->nullable(true, ['']),
+                        
+                        Text::make('Main')->nullable(true, ['']),
+                    ];
+                }),
+
+            Map::make('Categories')
+                ->using(function($attribute) {
+                    return  Collection::make($attribute)
+                                ->properties(function() {
+                                    return [
+                                        Integer::make('CategoryId', 'id'),
+
+                                        Text::make('Title', 'name'),
+                                    ];
+                                });
+                }), 
+
+            Number::make('Courier Cost', function($resource) {
+                    if($resource->areas->count()) {
+                        return $resource->areas->sum('pivot.cost') / $resource->areas->count();
+                    } 
+                })
+                ->nullable(),
 
             Map::make('Menu', 'foods') 
                 ->resolveUsing(function($foods) {  
