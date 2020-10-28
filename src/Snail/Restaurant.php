@@ -64,7 +64,7 @@ class Restaurant extends Schema
                 }),
 
             Collection::make('Logo', function($resource) {
-                    return $resource->getConversions($resource->getFirstMedia('image'), [
+                    return $resource->getConversions($resource->getFirstMedia('logo'), [
                         'logo', 'thumbnail', 'icon'
                     ]);     
                 })
