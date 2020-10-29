@@ -24,7 +24,7 @@ class Restaurant extends Schema
      * @var array
      */
     public static $with = [
-        'type', 'areas', 'chain', 'foods', 'categories'
+        'type', 'areas', 'chain', 'foods.group', 'categories'
     ];
 
     /**
@@ -116,6 +116,10 @@ class Restaurant extends Schema
                                         Integer::make('Duration', 'pivot->duration'),
 
                                         Boolean::make('Available', 'pivot->duration'),
+
+                                        Text::make('Group', 'group.name'),
+
+                                        Integer::make('GroupId', 'group.id'),
                                     ];
                                 }); 
                 })
