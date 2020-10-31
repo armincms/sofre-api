@@ -4,7 +4,7 @@ namespace Armincms\SofreApi\Snail;
 
 use Armincms\Snail\Http\Requests\SnailRequest;
 use Illuminate\Http\Request;
-use Armincms\Snail\Properties\{ID, Text, BelongsTo};  
+use Armincms\Snail\Properties\{ID, Text, Collection};  
 
 class Food extends Schema
 {
@@ -27,6 +27,19 @@ class Food extends Schema
             ID::make(),
 
             Text::make('Name'), 
+
+            Collection::make('Image', function($resource) {
+                    return $resource->getConversions($resource->getFirstMedia('image'), [
+                        'food-thumbnail', 'food-medium'
+                    ]);
+                })
+                ->properties(function() {
+                    return [
+                        Text::make('Thumbnail', 'food-thumbnail')->nullable(true, ['']),
+                        
+                        Text::make('Noobar', 'food-medium')->nullable(true, ['']), 
+                    ];
+                }),
         ];
     }  
 }

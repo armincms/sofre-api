@@ -31,16 +31,16 @@ class RestaurantType extends Schema
 
             Collection::make('Image', function($resource) {
                     return $resource->getConversions($resource->getFirstMedia('image'), [
-                        'logo', 'thumbnail', 'icon'
+                        'restaurant-type-logo', 'common-thumbnail'
                     ]);     
                 })
                 ->properties(function() {
                     return [
-                        Text::make('Thumbnail')->nullable(true, ['']),
+                        Text::make('Thumbnail', 'common-thumbnail')->nullable(true, ['']),
                         
-                        Text::make('Noobar')->nullable(true, ['']),
+                        Text::make('Noobar', 'restaurant-type-logo')->nullable(true, ['']),
                         
-                        Text::make('Main')->nullable(true, ['']),
+                        Text::make('Main', 'restaurant-type-logo')->nullable(true, ['']),
                     ];
                 }),
 

@@ -50,31 +50,31 @@ class Restaurant extends Schema
 
             Collection::make('Image', function($resource) {
                     return $resource->getConversions($resource->getFirstMedia('image'), [
-                        'logo', 'thumbnail', 'icon'
+                        'restaurant-mobile', 'common-thumbnail'
                     ]);     
                 })
                 ->properties(function() {
                     return [
-                        Text::make('Thumbnail')->nullable(true, ['']),
+                        Text::make('Thumbnail', 'common-thumbnail')->nullable(true, ['']),
                         
-                        Text::make('Noobar')->nullable(true, ['']),
+                        Text::make('Noobar', 'restaurant-mobile')->nullable(true, ['']),
                         
-                        Text::make('Main')->nullable(true, ['']),
+                        Text::make('Main', 'restaurant-mobile')->nullable(true, ['']),
                     ];
                 }),
 
             Collection::make('Logo', function($resource) {
                     return $resource->getConversions($resource->getFirstMedia('logo'), [
-                        'logo', 'thumbnail', 'icon'
+                        'restaurant-logo', 'common-thumbnail'
                     ]);     
                 })
                 ->properties(function() {
                     return [
-                        Text::make('Thumbnail')->nullable(true, ['']),
+                        Text::make('Thumbnail', 'restaurant-logo')->nullable(true, ['']),
                         
-                        Text::make('Noobar')->nullable(true, ['']),
+                        Text::make('Noobar', 'restaurant-logo')->nullable(true, ['']),
                         
-                        Text::make('Main')->nullable(true, ['']),
+                        Text::make('Main', 'restaurant-logo')->nullable(true, ['']),
                     ];
                 }),
 
@@ -129,6 +129,19 @@ class Restaurant extends Schema
                                             Integer::make('Duration', 'pivot->duration'),
 
                                             Boolean::make('Available', 'pivot->duration'),
+
+                                            Collection::make('Image', function($resource) {
+                                                    return $resource->getConversions($resource->getFirstMedia('image'), [
+                                                        'food-thumbnail', 'food-medium'
+                                                    ]);
+                                                })
+                                                ->properties(function() {
+                                                    return [
+                                                        Text::make('Thumbnail', 'food-thumbnail')->nullable(true, ['']),
+                                                        
+                                                        Text::make('Noobar', 'food-medium')->nullable(true, ['']), 
+                                                    ];
+                                                }),
                                         ];
                                     }); 
                                 }),
