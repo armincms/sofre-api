@@ -101,28 +101,40 @@ class Restaurant extends Schema
                 ->resolveUsing(function($foods) {  
                     return $foods->filter(function($food) {
                         return ! empty(data_get($food->pivot, strtolower(now()->format('l'))));
+                    })->groupBy('food_group_id')->values();
+                })
+                ->using(function($attribute) {
+                    return Collection::make($attribute)->properties(function() {
+                        return [ 
+                            Text::make('Group', function($resource) {
+                                return $resource->first()->group->name;
+                            }),
+
+                            Integer::make('GroupId', function($resource) {
+                                return $resource->first()->group->id;
+                            }),
+
+                            Map::make('Foods', function($resource) {
+                                    return $resource->sortBy('pivot.order');
+                                })
+                                ->using(function($attribute) { 
+                                    return  Collection::make($attribute)->properties(function() {
+                                        return [
+                                            ID::make(),
+
+                                            Text::make('Name'),
+
+                                            Number::make('Price', 'pivot->price'),
+
+                                            Integer::make('Duration', 'pivot->duration'),
+
+                                            Boolean::make('Available', 'pivot->duration'),
+                                        ];
+                                    }); 
+                                }),
+                        ];
                     });
-                })
-                ->using(function($attribute) { 
-                    return  Collection::make($attribute)
-                                ->properties(function() {
-                                    return [
-                                        ID::make(),
-
-                                        Text::make('Name'),
-
-                                        Number::make('Price', 'pivot->price'),
-
-                                        Integer::make('Duration', 'pivot->duration'),
-
-                                        Boolean::make('Available', 'pivot->duration'),
-
-                                        Text::make('Group', 'group.name'),
-
-                                        Integer::make('GroupId', 'group.id'),
-                                    ];
-                                }); 
-                })
+                }) 
                 ->onlyOnDetail(),    
 
             BelongsTo::make('Restaurant Type', 'type', RestaurantType::class),
