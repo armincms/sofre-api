@@ -4,10 +4,9 @@ namespace Armincms\SofreApi\Snail;
 
 use Armincms\Snail\Http\Requests\SnailRequest;
 use Illuminate\Http\Request;
-use Armincms\Snail\Properties\{
-    ID, Text, Boolean, Integer, Number, Map, Collection, BelongsTo, BelongsToMany
-};
+use Armincms\Snail\Properties\{ID, Text, Boolean, Integer, Number, Map, Collection, BelongsTo};
 use Armincms\Sofre\Helper;  
+use Armincms\Snail\Snail;  
 
 class Restaurant extends Schema
 {
@@ -170,6 +169,15 @@ class Restaurant extends Schema
                         ];
                     });
                 }),
+
+
+            Text::make('Comments', function() {
+                return  Snail::path().'/'.Snail::currentVersion().'/comments?' . http_build_query([
+                            'viaResource' => static::uriKey(),
+                            'viaResourceId' => $this->id,
+                            'viaRelationship' => 'comments'
+                        ]);
+            }),
 
             // Map::make('Working Hours', 'working_hours')
             //     ->using(function($attribute) {
