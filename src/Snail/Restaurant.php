@@ -123,6 +123,21 @@ class Restaurant extends Schema
 
                                             Text::make('Name'),
 
+                                            Map::make('Material', function($resource) {
+                                                    return collect($resource->material)->map(function($value, $name) {
+                                                        return compact('name', 'value');
+                                                    })->values();
+                                                })
+                                                ->using(function($attribute) {
+                                                    return Collection::make($attribute)->properties(function() {
+                                                        return [
+                                                            Text::make('Value'),
+
+                                                            Text::make('Name'),
+                                                        ];
+                                                    });
+                                                }),
+
                                             Number::make('Price', 'pivot->price'),
 
                                             Integer::make('Duration', 'pivot->duration'),
