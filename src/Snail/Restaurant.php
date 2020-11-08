@@ -138,7 +138,12 @@ class Restaurant extends Schema
                                                     });
                                                 }),
 
-                                            Number::make('Price', 'pivot->price'),
+                                            Number::make('Old Price', 'pivot->price'),
+
+                                            Number::make('Price', 'pivot->price')
+                                                ->displayUsing(function($value, $resource, $attribute) {
+                                                    return $this->discounts->applyOn($resource); 
+                                                }), 
 
                                             Integer::make('Duration', 'pivot->duration'),
 
