@@ -145,6 +145,15 @@ class Restaurant extends Schema
                                                     return $this->discounts->applyOn($resource); 
                                                 }), 
 
+                
+                                            Text::make('Comments', function($resource) {
+                                                return  Snail::path().'/'.Snail::currentVersion().'/comments?' . http_build_query([
+                                                            'viaResource' => Food::uriKey(),
+                                                            'viaResourceId' => $resource->id,
+                                                            'viaRelationship' => 'comments'
+                                                        ]);
+                                            }),
+
                                             Integer::make('Duration', 'pivot->duration'),
 
                                             Boolean::make('Available', 'pivot->duration'),

@@ -40,6 +40,14 @@ class Food extends Schema
                         Text::make('Noobar', 'food-medium')->nullable(true, ['']), 
                     ];
                 }),
+                
+            Text::make('Comments', function() {
+                return  Snail::path().'/'.Snail::currentVersion().'/comments?' . http_build_query([
+                            'viaResource' => static::uriKey(),
+                            'viaResourceId' => $this->id,
+                            'viaRelationship' => 'comments'
+                        ]);
+            }),
         ];
     }  
 }
