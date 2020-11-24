@@ -20,7 +20,7 @@ class Zone extends Schema
      *
      * @var array
      */
-    public static $with = ['city'];
+    public static $with = ['location'];
 
     /**
      * Get the properties displayed by the resource.
