@@ -22,6 +22,8 @@ class ToolServiceProvider extends ServiceProvider
 
         SnailServices::serving(function() {
             SnailServices::resources([
+                Snail\Zone::class,
+                Snail\City::class,
                 Snail\Food::class,
                 Snail\Restaurant::class,
                 Snail\RestaurantType::class,
