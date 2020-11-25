@@ -23,7 +23,7 @@ class Schema extends SnailSchema implements MustBeAuthenticated
      * @var array
      */
     public static $search = [
-        'id',
+        'id', 'name'
     ];
 
     /**
