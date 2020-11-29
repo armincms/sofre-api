@@ -2,9 +2,11 @@
 
 namespace Armincms\SofreApi\Snail;
 
-use Armincms\Snail\Http\Requests\SnailRequest;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Armincms\Snail\Http\Requests\SnailRequest;
 use Armincms\Snail\Properties\{ID, Text, Boolean, Integer, Number, Map, Collection, BelongsTo};
+use Armincms\Sofre\Nova\Setting;  
 use Armincms\Sofre\Helper;  
 use Armincms\Snail\Snail;  
 
@@ -25,6 +27,13 @@ class Restaurant extends Schema
     public static $with = [
         'type', 'areas', 'chain', 'foods.group', 'categories'
     ];
+
+    /**
+     * Default opening hours.
+     * 
+     * @var array
+     */
+    public static $openingHours = [];
 
     /**
      * Get the properties displayed by the resource.
@@ -208,22 +217,50 @@ class Restaurant extends Schema
                         ]);
             }),
 
-            // Map::make('Working Hours', 'working_hours')
-            //     ->using(function($attribute) {
-            //         dd(func_get_args());
-            //         return Collection::make($attribute, $value)->properties(function() { 
-            //             return [
-            //                 Text::make('Name'),
+            Collection::make('Opening Hours', 'working_hours')
+                ->properties(function() {
+                    return collect(Helper::days())->map(function($label, $day) {
+                        return Collection::make($day)->properties(function() use ($day) {
+                            return collect(Helper::meals())->map(function($label, $meal) use ($day) {
+                                return Text::make($meal, function($value) use ($meal, $day) {
+                                    if($hours = collect($value)->where('data', $meal)->pluck('hours')->first()) {
+                                        return $this->modifyMealHours($hours, $meal, $day);
+                                    }
 
-            //                 Integer::make('Duration', 'pivot->duration'),
-
-            //                 Number::make('Cost', 'pivot->cost'),
-
-            //                 Text::make('Note', 'pivot->note'),
-            //             ];
-            //         });
-            //     }),
+                                    return __('Closed');
+                                });
+                            });
+                        });
+                    })->all();
+                }),
 
         ];
+    }
+
+    public function modifyMealHours($hours, $meal, $day)
+    {
+        if($default = $this->defaultOpeningHours($day, $meal)) {
+            list($fromDefault, $toDefault) = explode('-', $default); 
+            list($from, $to) = explode('-', $hours);
+
+            if($fromDefault > $from) {
+                $hours = Str::before($default, '-').'-'.Str::after($hours, '-');
+            }
+
+            if(str_replace('00:00', '24:00', $toDefault)  < $to) {
+                $hours = Str::before($hours, '-').'-'.Str::after($default, '-');
+            }
+        }
+
+        return $hours;
     }   
+
+    public function defaultOpeningHours($day, $meal)
+    {
+        if(! isset(static::$openingHours)) {
+            static::$openingHours = Setting::openingHours();
+        } 
+
+        return collect(static::$openingHours[$day] ?? [])->where('data', $meal)->pluck('hours')->first();
+    }
 }
