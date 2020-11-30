@@ -220,17 +220,15 @@ class Restaurant extends Schema
             Collection::make('Opening Hours', 'working_hours')
                 ->properties(function() {
                     return collect(Helper::days())->map(function($label, $day) {
-                        return Collection::make($day)->properties(function() use ($day) {
-                            return collect(Helper::meals())->map(function($label, $meal) use ($day) {
-                                return Text::make($meal, function($value) use ($meal, $day) {
-                                    if($hours = collect($value)->where('data', $meal)->pluck('hours')->first()) {
-                                        return $this->modifyMealHours($hours, $meal, $day);
-                                    }
+                        return Map::make($day)->using(function($attribute) {
+                            return Collection::make($attribute)->properties(function() {
+                                return [
+                                    Text::make('Data'),
 
-                                    return __('Closed');
-                                });
+                                    Text::make('Hours'),
+                                ];
                             });
-                        });
+                        }); 
                     })->all();
                 }),
 
