@@ -217,19 +217,27 @@ class Restaurant extends Schema
                         ]);
             }),
 
-            Collection::make('Opening Hours', 'working_hours')
-                ->properties(function() {
-                    return collect(Helper::days())->map(function($label, $day) {
-                        return Map::make($day)->using(function($attribute) {
-                            return Collection::make($attribute)->properties(function() {
-                                return [
-                                    Text::make('Data'),
+            Map::make('Opening Hours', 'working_hours', function($value) {
+                    return collect($value)->map(function($hours, $day) {
+                        return compact('day', 'hours');
+                    })->values();
+                })
+                ->using(function($attribute) {
+                    return  Collection::make($attribute)->properties(function() {
+                        return [
+                            Text::make('Day'),
 
-                                    Text::make('Hours'),
-                                ];
-                            });
-                        }); 
-                    })->all();
+                            Map::make('Hours')->using(function($attribute) { 
+                                return Collection::make($attribute)->properties(function() {
+                                    return [
+                                        Text::make('Data'),
+
+                                        Text::make('Hours'),
+                                    ];
+                                });
+                            }),
+                        ];
+                    }); 
                 }),
 
         ];
