@@ -52,6 +52,10 @@ class Restaurant extends Schema
 
             Number::make('Min Order'), 
 
+            Number::make('Package Cost'),
+
+            Number::make('Tax'), 
+
             Map::make('Sending Method'), 
 
             Map::make('Payment Method'),
