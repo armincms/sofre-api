@@ -221,6 +221,12 @@ class Restaurant extends Schema
 
             Map::make('Opening Hours', 'working_hours', function($value) {
                     return collect($value)->map(function($hours, $day) {
+                        $hours = collect($hours)->map(function($data) use ($day) { 
+                            $data['hours'] = $this->modifyMealHours($data['hours'], $data['data'], $day);
+
+                            return $data; 
+                        })->values()->all();
+
                         return compact('day', 'hours');
                     })->values();
                 })
@@ -234,7 +240,8 @@ class Restaurant extends Schema
                                     return [
                                         Text::make('Data'),
 
-                                        Text::make('Hours'),
+                                        Text::make('Hours')
+                                            ->nullable(),
                                     ];
                                 });
                             }),
@@ -245,9 +252,9 @@ class Restaurant extends Schema
         ];
     }
 
-    public function modifyMealHours($hours, $meal, $day)
-    {
-        if($default = $this->defaultOpeningHours($day, $meal)) {
+    public function modifyMealHours($hours = null, $meal, $day)
+    { 
+        if(! empty($hours) && $default = $this->defaultOpeningHours($day, $meal)) {
             list($fromDefault, $toDefault) = explode('-', $default); 
             list($from, $to) = explode('-', $hours);
 
