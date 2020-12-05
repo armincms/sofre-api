@@ -41,7 +41,7 @@ class ToolServiceProvider extends ServiceProvider
     protected function routes()
     { 
         Route::middleware([])
-                ->prefix('api/v1')
+                ->prefix('api')
                 ->namespace(__NAMESPACE__.'\\Http\\Controllers')
                 ->name('sofre.api.')
                 ->group(__DIR__.'/../routes/api.php');

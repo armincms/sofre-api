@@ -19,3 +19,4 @@ Route::get('restaurant-classes', 'RestaurantClassController@index')->name('class
 Route::get('restaurant-classes/{id}', 'RestaurantClassController@restaurants')->name('class.restaurants');
 
 Route::get('restaurant/{id}', 'RestaurantController@show')->name('show');
+Route::get('setting', 'SettingController@show')->name('show');
