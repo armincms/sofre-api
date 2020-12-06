@@ -250,12 +250,9 @@ class Restaurant extends Schema
                     }); 
                 }), 
 
-            Boolean::make('Is Open', function($resource) {
-                try {
-                    return $this->isOpen() && OpeningHours::create($resource->working_hours)->isOpenAt(now());  
-                } catch (\Exception $e) {
-                    return false;
-                } 
+            Boolean::make('Is Open', function($resource) { 
+                return $this->isOpen() && 
+                        OpeningHours::create($this->filterHours($resource->working_hours))->isOpenAt(now(config('app.timezone')));  
             }),
 
             Collection::make('Serving', function() {
@@ -296,26 +293,35 @@ class Restaurant extends Schema
     public function defaultOpeningHours($day, $meal)
     {
         if(! isset(static::$openingHours)) {
-            static::$openingHours = Setting::openingHours();
+            static::$openingHours = $this->filterHours(Setting::openingHours());
         } 
 
         return collect(static::$openingHours[$day] ?? [])->where('data', $meal)->pluck('hours')->first();
     }
 
     public function isOpen()
-    {
-        return OpeningHours::create(Setting::openingHours())->isOpenAt(now());          
+    { 
+        return OpeningHours::create($this->filterHours(Setting::openingHours()))->isOpenAt(now(config('app.timezone')));          
     } 
 
     public function currentMeal()
     {
          $today = Str::lower(now()->format('l'));
 
-        return collect(data_get(Setting::openingHours(), $today))->first(function($meal) {
+        return collect(data_get($this->filterHours(Setting::openingHours()), $today))->first(function($meal) {
             $hours = explode('-', data_get($meal, 'hours')); 
-            $now = now()->format('H:i');
+            $now = now(config('app.timezone'))->format('H:i');
 
             return count($hours) > 1 && $hours[0] < $now && $now  < $hours[1];
         });
+    }
+
+    public function filterHours($hours)
+    {
+        return collect($hours)->map(function($hours) {
+            return collect($hours)->filter(function($hour) {
+                return ! empty(data_get($hour, 'hours'));
+            })->values();
+        })->toArray();
     }
 }
