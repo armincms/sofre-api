@@ -6,6 +6,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Armincms\Snail\Http\Requests\SnailRequest;
 use Armincms\Snail\Properties\{ID, Text, Boolean, Integer, Number, Map, Collection, BelongsTo};
+use Spatie\OpeningHours\OpeningHours;
 use Armincms\Sofre\Nova\Setting;  
 use Armincms\Sofre\Helper;  
 use Armincms\Snail\Snail;  
@@ -247,7 +248,29 @@ class Restaurant extends Schema
                             }),
                         ];
                     }); 
-                }),
+                }), 
+
+            Boolean::make('Is Open', function($resource) {
+                try {
+                    return $this->isOpen() && OpeningHours::create($resource->working_hours)->isOpenAt(now());  
+                } catch (\Exception $e) {
+                    return false;
+                } 
+            }),
+
+            Collection::make('Serving', function() {
+                return $this->currentMeal();
+            })->properties(function() {
+                return [
+                    Text::make('Meal', 'data')->nullable(),
+
+                    Text::make('Hours', function($meal) {   
+                        $today = Str::lower(now()->format('l'));
+
+                        return is_array($meal) ? $this->modifyMealHours($meal['hours'], $meal['data'], $today) : null;
+                    })->nullable(),
+                ];
+            }),
 
         ];
     }
@@ -277,5 +300,22 @@ class Restaurant extends Schema
         } 
 
         return collect(static::$openingHours[$day] ?? [])->where('data', $meal)->pluck('hours')->first();
+    }
+
+    public function isOpen()
+    {
+        return OpeningHours::create(Setting::openingHours())->isOpenAt(now());          
+    } 
+
+    public function currentMeal()
+    {
+         $today = Str::lower(now()->format('l'));
+
+        return collect(data_get(Setting::openingHours(), $today))->first(function($meal) {
+            $hours = explode('-', data_get($meal, 'hours')); 
+            $now = now()->format('H:i');
+
+            return count($hours) > 1 && $hours[0] < $now && $now  < $hours[1];
+        });
     }
 }
