@@ -250,11 +250,6 @@ class Restaurant extends Schema
                     }); 
                 }), 
 
-            Boolean::make('Is Open', function($resource) { 
-                return $this->isOpen() && 
-                        OpeningHours::create($this->filterHours($resource->working_hours))->isOpenAt(now(config('app.timezone')));  
-            }),
-
             Collection::make('Serving', function() {
                 return $this->currentMeal();
             })->properties(function() {
@@ -266,6 +261,13 @@ class Restaurant extends Schema
 
                         return is_array($meal) ? $this->modifyMealHours($meal['hours'], $meal['data'], $today) : null;
                     })->nullable(),
+
+
+                    Boolean::make('Is Open', function($resource) { 
+                        $hours = $this->filterHours($this->working_hours);
+
+                        return OpeningHours::create($hours)->isOpenAt(now(config('app.timezone'))) && $this->isOpen();  
+                    }),
                 ];
             }),
 
