@@ -26,7 +26,7 @@ class Restaurant extends Schema
      * @var array
      */
     public static $with = [
-        'type', 'areas', 'chain', 'foods.group', 'categories'
+        'type', 'areas', 'chain', 'foods.group', 'categories', 'discounts'
     ];
 
     /**
@@ -58,6 +58,24 @@ class Restaurant extends Schema
             Map::make('Sending Method'), 
 
             Map::make('Payment Method'),
+
+            Integer::make('Max Discount', function() {
+                $maxPercent = $this->discounts->filter->isPercentage()->max('discount.value');
+                $maxAmount  = $this->discounts->reject->isPercentage()->max('discount.value');
+
+                $maxPerFood = $this->foods->min('pivot.price') - $maxAmount / 100;
+
+                return ($maxPercent > $maxPerFood ? $maxPercent : $maxPerFood);
+            }),
+
+            Integer::make('Min Discount', function() {
+                $minPercent = $this->discounts->filter->isPercentage()->min('discount.value');
+                $minAmount  = $this->discounts->reject->isPercentage()->min('discount.value');
+
+                $minPerFood = $this->foods->max('pivot.price') - $minAmount / 100;
+
+                return ($minPercent < $minPerFood ? $minPercent : $minPerFood);
+            }),
 
             Collection::make('Image', function($resource) {
                     return $resource->getConversions($resource->getFirstMedia('image'), [
