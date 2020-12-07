@@ -62,8 +62,9 @@ class Restaurant extends Schema
             Integer::make('Max Discount', function() {
                 $maxPercent = $this->discounts->filter->isPercentage()->max('discount.value');
                 $maxAmount  = $this->discounts->reject->isPercentage()->max('discount.value');
+                $minPrice = $this->foods->min('pivot.price');
 
-                $maxPerFood = $maxAmount ? ($this->foods->min('pivot.price') - $maxAmount / 100) : 0;
+                $maxPerFood = $minPrice ? ($minPrice - $maxAmount / $minPrice) * 100 : $maxAmount;
 
                 return ($maxPercent > $maxPerFood ? $maxPercent : $maxPerFood);
             }),
@@ -71,8 +72,9 @@ class Restaurant extends Schema
             Integer::make('Min Discount', function() {
                 $minPercent = $this->discounts->filter->isPercentage()->min('discount.value');
                 $minAmount  = $this->discounts->reject->isPercentage()->min('discount.value');
+                $maxPrice  = $this->foods->max('pivot.price');
 
-                $minPerFood = $minAmount ? ($this->foods->max('pivot.price') - $minAmount / 100) : 0;
+                $minPerFood = $maxPrice ? ($maxPrice - $minAmount / $maxPrice) * 100 : 100;
 
                 return ($minPercent < $minPerFood ? $minPercent : $minPerFood);
             }),
