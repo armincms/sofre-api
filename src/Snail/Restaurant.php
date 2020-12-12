@@ -61,9 +61,9 @@ class Restaurant extends Schema
 
             Integer::make('Max Discount', function() {
                 $maxPercent = $this->discounts->filter->isPercentage()->max('discount.value');
-                $maxAmount  = $this->discounts->reject->isPercentage()->max('discount.value');
+                $maxAmount  = $this->discounts->reject->isPercentage()->max('discount.value'); 
 
-                $maxPerFood = ($maxAmount / $this->foods->min('pivot.price') ?? $maxAmount) * 100;
+                $maxPerFood = $maxAmount / ($this->foods->min('pivot.price') ?: $maxAmount) * 100;
 
                 return ($maxPercent > $maxPerFood ? $maxPercent : $maxPerFood);
             }),
@@ -72,7 +72,7 @@ class Restaurant extends Schema
                 $minPercent = $this->discounts->filter->isPercentage()->min('discount.value');
                 $minAmount  = $this->discounts->reject->isPercentage()->min('discount.value'); 
 
-                $minPerFood = ($minAmount / $this->foods->max('pivot.price') ?? $minAmount) * 100;
+                $minPerFood = $minAmount / ($this->foods->max('pivot.price') ?: $minAmount) * 100;
 
                 return ($minPercent < $minPerFood ? $minPercent : $minPerFood);
             }),
@@ -261,6 +261,14 @@ class Restaurant extends Schema
 
                                         Text::make('Hours')
                                             ->nullable(),
+
+                                        Text::make('From', 'hours', function($hours) {   
+                                            return Str::before($hours, '-');
+                                        })->nullable(),
+
+                                        Text::make('To', 'hours', function($hours) {   
+                                            return Str::after($hours, '-');
+                                        })->nullable(), 
                                     ];
                                 });
                             }),
@@ -277,9 +285,22 @@ class Restaurant extends Schema
                     Text::make('Hours', function($meal) {   
                         $today = Str::lower(now()->format('l'));
 
-                        return is_array($meal) ? $this->modifyMealHours($meal['hours'], $meal['data'], $today) : null;
+                        return $this->modifyMealHours($meal['hours'] ?? null, $meal['data'] ?? null, $today);
                     })->nullable(),
 
+                    Text::make('From', function($meal) {   
+                        $today = Str::lower(now()->format('l'));
+                        $hours = $this->modifyMealHours($meal['hours'] ?? null, $meal['data'] ?? null, $today);
+
+                        return Str::before($hours, '-');
+                    })->nullable(),
+
+                    Text::make('To', function($meal) {   
+                        $today = Str::lower(now()->format('l'));
+                        $hours = $this->modifyMealHours($meal['hours'] ?? null, $meal['data'] ?? null, $today);
+
+                        return Str::after($hours, '-');
+                    })->nullable(),
 
                     Boolean::make('Is Open', function($resource) { 
                         $hours = $this->filterHours($this->working_hours);
