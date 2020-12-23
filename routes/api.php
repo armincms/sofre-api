@@ -12,11 +12,5 @@ use Illuminate\Support\Facades\Route;
 | are loaded by the ServiceProvider of your tool. They are protected
 | by your tool's "Authorize" middleware by default. Now, go build!
 |
-*/
-
-Route::get('restaurant-classes', 'RestaurantClassController@index')->name('class.index');
-
-Route::get('restaurant-classes/{id}', 'RestaurantClassController@restaurants')->name('class.restaurants');
-
-Route::get('restaurant/{id}', 'RestaurantController@show')->name('show');
+*/ 
 Route::get('setting', 'SettingController@show')->name('show');
