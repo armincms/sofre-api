@@ -13,7 +13,7 @@ class Food extends Schema
      *
      * @var string
      */
-    public static $model = \Armincms\Sofre\Food::class;  
+    public static $model = \Armincms\Sofre\Models\Food::class;  
 
     /**
      * Get the properties displayed by the resource.

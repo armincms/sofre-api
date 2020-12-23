@@ -14,7 +14,7 @@ class RestaurantType extends Schema
      *
      * @var string
      */
-    public static $model = \Armincms\Sofre\RestaurantType::class;  
+    public static $model = \Armincms\Sofre\Models\RestaurantType::class;  
 
     /**
      * Get the properties displayed by the resource.

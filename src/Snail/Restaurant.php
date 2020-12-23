@@ -18,7 +18,7 @@ class Restaurant extends Schema
      *
      * @var string
      */
-    public static $model = \Armincms\Sofre\Restaurant::class;  
+    public static $model = \Armincms\Sofre\Models\Restaurant::class;  
 
     /**
      * The relationships that should be eager loaded when performing an index query.
