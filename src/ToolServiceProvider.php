@@ -25,6 +25,7 @@ class ToolServiceProvider extends ServiceProvider
                 Snail\Zone::class,
                 Snail\City::class,
                 Snail\Food::class,
+                Snail\Menu::class,
                 Snail\Restaurant::class,
                 Snail\RestaurantType::class,
             ]);

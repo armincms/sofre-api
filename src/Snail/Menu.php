@@ -62,7 +62,7 @@ class Menu extends Schema
 
             Number::make('Price', function() {
                 if($this->price > 0) {
-                    return $this->restaurant->discounts->filter->canApplyOn($this->food)->reduce(function($discount, $price) {
+                    return $this->restaurant->discounts->filter->canApplyOn($this->food)->reduce(function($price, $discount) {
                         return $discount->applyDiscount($price);
                     }, $this->price); 
                 }
@@ -72,7 +72,7 @@ class Menu extends Schema
 
             Number::make('Discount', function() {
                 if($this->price > 0) {
-                    $amount = $this->restaurant->discounts->filter->canApplyOn($this->food)->reduce(function($discount, $price) {
+                    $amount = $this->restaurant->discounts->filter->canApplyOn($this->food)->reduce(function($price, $discount) {
                         return $discount->applyDiscount($price);
                     }, $this->price); 
 
