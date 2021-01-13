@@ -107,17 +107,15 @@ class Restaurant extends Schema
                     ];
                 }),
 
-            Map::make('Categories')
-                ->using(function($attribute) {
-                    return  Collection::make($attribute)
-                                ->properties(function() {
-                                    return [
-                                        Integer::make('CategoryId', 'id'),
+            Map::make('Categories')->using(function($attribute) {
+                return  Collection::make($attribute)->properties(function() {
+                    return [
+                        Integer::make('CategoryId', 'id'),
 
-                                        Text::make('Title', 'name'),
-                                    ];
-                                });
-                }), 
+                        Text::make('Title', 'name'),
+                    ];
+                });
+            }), 
 
             Number::make('Courier Cost', function($resource) {
                     if($resource->areas->count()) {
@@ -227,7 +225,8 @@ class Restaurant extends Schema
                             Text::make('Note', 'pivot->note'),
                         ];
                     });
-                }),
+                })
+                ->onlyOnDetail(),
 
 
             Text::make('Comments', function() {
@@ -274,7 +273,8 @@ class Restaurant extends Schema
                             }),
                         ];
                     }); 
-                }), 
+                })
+                ->onlyOnDetail(), 
 
             Collection::make('Serving', function() {
                 return $this->currentMeal();
