@@ -25,6 +25,15 @@ class Menu extends Schema
     ];
 
     /**
+     * The columns that should be searched.
+     *
+     * @var array
+     */
+    public static $search = [
+        'id'
+    ];
+
+    /**
      * Get the properties displayed by the resource.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -102,4 +111,18 @@ class Menu extends Schema
             BelongsTo::make('Restaurant', 'restaurant', Restaurant::class), 
         ];
     }  
+
+    /**
+     * Apply the search query to the query.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  string  $search
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected static function applySearch($query, $search)
+    {
+        return parent::applySearch($query, $search)->orWhereHas('food', function($query) use ($search) {
+            $query->where($query->qualifyColumn('name'), 'like', '%'.$search.'%');
+        });
+    }
 }
