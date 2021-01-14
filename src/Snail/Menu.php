@@ -120,9 +120,9 @@ class Menu extends Schema
      * @return \Illuminate\Database\Eloquent\Builder
      */
     protected static function applySearch($query, $search)
-    {
+    {   
         return parent::applySearch($query, $search)->orWhereHas('food', function($query) use ($search) {
-            $query->where($query->qualifyColumn('name'), 'like', '%'.$search.'%');
+            $query->where($query->qualifyColumn('name'), 'like', '%'.json_encode($search).'%');
         });
     }
 }
