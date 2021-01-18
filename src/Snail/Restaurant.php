@@ -26,7 +26,7 @@ class Restaurant extends Schema
      * @var array
      */
     public static $with = [
-        'type', 'areas', 'chain', 'foods.group', 'categories', 'discounts'
+        'type', 'areas', 'chain', 'foods.group', 'categories', 'discounts', 'foods'
     ];
 
     /**
@@ -127,6 +127,7 @@ class Restaurant extends Schema
             Map::make('Menu', 'foods') 
                 ->resolveUsing(function($foods) {  
                     return $foods->filter(function($food) {
+                        return true;
                         return ! empty(data_get($food->pivot, strtolower(now()->format('l'))));
                     })->groupBy('food_group_id')->values();
                 })
@@ -176,8 +177,8 @@ class Restaurant extends Schema
                 
                                             Text::make('Comments', function($resource) {
                                                 return  Snail::path().'/'.Snail::currentVersion().'/comments?' . http_build_query([
-                                                            'viaResource' => Food::uriKey(),
-                                                            'viaResourceId' => $resource->id,
+                                                            'viaResource' => Menu::uriKey(),
+                                                            'viaResourceId' => $resource->pivot->id,
                                                             'viaRelationship' => 'comments'
                                                         ]);
                                             }),
@@ -310,6 +311,33 @@ class Restaurant extends Schema
                 ];
             }),
 
+        ];
+    } 
+
+    /**
+     * Get the filters available on the entity.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array
+     */
+    public function filters(Request $request)
+    {
+        return [
+            new Filters\Zone,
+
+            new Filters\Type,
+
+            new Filters\Food,
+
+            new Filters\Rating,
+
+            new Filters\Payment,
+
+            new Filters\Delivery, 
+
+            new Filters\Category,
+
+            new Filters\Location,
         ];
     }
 
