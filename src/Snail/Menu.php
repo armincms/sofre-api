@@ -89,11 +89,7 @@ class Menu extends Schema
                 }
 
                 return 0;
-            }), 
-
-            // Number::make('Discount', function() {
-            //     return $this->restaurant->discounts->each->applyDiscount($this->price) / $this->price * 100;
-            // }),  
+            }),  
 
             Collection::make('Image', function($resource) {
                     return $resource->food->getConversions($resource->food->getFirstMedia('image'), [
@@ -107,6 +103,14 @@ class Menu extends Schema
                         Text::make('Noobar', 'food-medium')->nullable(true, ['']), 
                     ];
                 }),
+                
+            Text::make('Comments', function() {
+                return  Snail::path().'/'.Snail::currentVersion().'/comments?' . http_build_query([
+                            'viaResource' => static::uriKey(),
+                            'viaResourceId' => $this->id,
+                            'viaRelationship' => 'comments'
+                        ]);
+            }),
                 
             BelongsTo::make('Restaurant', 'restaurant', Restaurant::class), 
         ];
