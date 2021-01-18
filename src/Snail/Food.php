@@ -5,6 +5,7 @@ namespace Armincms\SofreApi\Snail;
 use Armincms\Snail\Http\Requests\SnailRequest;
 use Illuminate\Http\Request;
 use Armincms\Snail\Properties\{ID, Text, Collection};  
+use Armincms\Snail\Snail;  
 
 class Food extends Schema
 {
