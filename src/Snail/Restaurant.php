@@ -324,20 +324,31 @@ class Restaurant extends Schema
     {
         return [
             new Filters\Zone,
-
             new Filters\Type,
-
             new Filters\Food,
-
             new Filters\Rating,
-
             new Filters\Payment,
-
-            new Filters\Delivery, 
-
+            new Filters\Delivery,  
             new Filters\Category,
+            new Filters\Location,        
+        ];
+    }
 
-            new Filters\Location,
+    /**
+     * Get the orderings available on the entity.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array
+     */
+    public function orderings(Request $request)
+    {
+        return [ 
+            new Orderings\Name,
+            new Orderings\Zone,
+            new Orderings\Rating, 
+            new Orderings\Latitude, 
+            new Orderings\Longitude,  
+            new \Armincms\Snail\Orderings\CreatedAt, 
         ];
     }
 
