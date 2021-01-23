@@ -199,6 +199,13 @@ class Restaurant extends Schema
                                                         .$menu->id.'/rating';
                                             }),
 
+                                            Text::make('Comment URL', function($menu) {
+                                                return  Snail::path().'/'
+                                                        .Snail::currentVersion().'/' 
+                                                        .Menu::uriKey().'/'
+                                                        .$menu->id.'/comment';
+                                            }),
+
                                             Integer::make('Rating', function($menu) {
                                                 return $menu->ratings->avg('rating');
                                             }),
