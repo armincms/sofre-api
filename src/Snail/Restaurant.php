@@ -26,7 +26,7 @@ class Restaurant extends Schema
      * @var array
      */
     public static $with = [
-        'type', 'areas', 'chain', 'foods.group', 'categories', 'discounts', 'foods'
+        'type', 'areas', 'chain', 'categories', 'discounts', 'menus.ratings', 'menus.food.group'
     ];
 
     /**
@@ -63,7 +63,7 @@ class Restaurant extends Schema
                 $maxPercent = $this->discounts->filter->isPercentage()->max('discount.value');
                 $maxAmount  = $this->discounts->reject->isPercentage()->max('discount.value'); 
 
-                $maxPerFood = $maxAmount / ($this->foods->min('pivot.price') ?: ($maxAmount ?: 1)) * 100;
+                $maxPerFood = $maxAmount / ($this->menus->min('price') ?: ($maxAmount ?: 1)) * 100;
 
                 return ($maxPercent > $maxPerFood ? $maxPercent : $maxPerFood);
             }),
@@ -72,9 +72,17 @@ class Restaurant extends Schema
                 $minPercent = $this->discounts->filter->isPercentage()->min('discount.value');
                 $minAmount  = $this->discounts->reject->isPercentage()->min('discount.value'); 
 
-                $minPerFood = $minAmount / ($this->foods->max('pivot.price') ?: ($minAmount ?: 1)) * 100;
+                $minPerFood = $minAmount / ($this->menus->max('price') ?: ($minAmount ?: 1)) * 100;
 
                 return ($minPercent < $minPerFood ? $minPercent : $minPerFood);
+            }),
+
+            Integer::make(__('Rating'), function() {
+                return $this->menus->filter(function($menu) {
+                    return $menu->ratings->isNotEmpty();
+                })->avg(function($menu) {
+                    return $menu->ratings->avg('rating');
+                });
             }),
 
             Collection::make('Image', function($resource) {
@@ -124,36 +132,38 @@ class Restaurant extends Schema
                 })
                 ->nullable(),
 
-            Map::make('Menu', 'foods') 
-                ->resolveUsing(function($foods) {  
-                    return $foods->filter(function($food) {
+            Map::make('Menu', 'menus') 
+                ->resolveUsing(function($menus) {  
+                    return $menus->filter(function($menu) {
                         return true;
-                        return ! empty(data_get($food->pivot, strtolower(now()->format('l'))));
-                    })->groupBy('food_group_id')->values();
+                        $today = strtolower(now()->format('l'));
+
+                        return ! empty($menu->{$today});
+                    })->groupBy('food.food_group_id')->values();
                 })
-                ->using(function($attribute) {
-                    return Collection::make($attribute)->properties(function() {
+                ->using(function($attribute, $resources) { 
+                    return Collection::make($attribute)->properties(function() {  
                         return [ 
-                            Text::make('Group', function($resource) {
-                                return $resource->first()->group->name;
+                            Text::make('Group', function($menus) {  
+                                return $menus->first()->food->group->name;
                             }),
 
-                            Integer::make('GroupId', function($resource) {
-                                return $resource->first()->group->id;
+                            Integer::make('GroupId', function($menus) {
+                                return $menus->first()->food->group->id;
                             }),
 
-                            Map::make('Foods', function($resource) {
-                                    return $resource->sortBy('pivot.order');
+                            Map::make('Foods', function($menus) {
+                                    return $menus->sortBy('order');
                                 })
                                 ->using(function($attribute) { 
                                     return  Collection::make($attribute)->properties(function() {
                                         return [
                                             ID::make(),
 
-                                            Text::make('Name'),
+                                            Text::make('Name', 'food.name'),
 
-                                            Map::make('Material', function($resource) {
-                                                    return collect($resource->material)->map(function($value, $name) {
+                                            Map::make('Material', function($menu) {
+                                                    return collect($menu->food->material)->map(function($value, $name) {
                                                         return compact('name', 'value');
                                                     })->values();
                                                 })
@@ -167,28 +177,38 @@ class Restaurant extends Schema
                                                     });
                                                 }),
 
-                                            Number::make('Old Price', 'pivot->price'),
+                                            Number::make('Old Price', 'price'),
 
-                                            Number::make('Price', 'pivot->price')
-                                                ->displayUsing(function($value, $resource, $attribute) {
-                                                    return $this->discounts->applyOn($resource); 
+                                            Number::make('Price', 'price')
+                                                ->displayUsing(function($value, $menu, $attribute) {
+                                                    return $this->discounts->applyOn($menu->price); 
                                                 }), 
 
-                
-                                            Text::make('Comments', function($resource) {
+                                            Text::make('Comments', function($menu) {
                                                 return  Snail::path().'/'.Snail::currentVersion().'/comments?' . http_build_query([
                                                             'viaResource' => Menu::uriKey(),
-                                                            'viaResourceId' => $resource->pivot->id,
+                                                            'viaResourceId' => $menu->id,
                                                             'viaRelationship' => 'comments'
                                                         ]);
                                             }),
 
-                                            Integer::make('Duration', 'pivot->duration'),
+                                            Text::make('Rate URL', function($menu) {
+                                                return  Snail::path().'/'
+                                                        .Snail::currentVersion().'/' 
+                                                        .Menu::uriKey().'/'
+                                                        .$menu->id.'/rating';
+                                            }),
 
-                                            Boolean::make('Available', 'pivot->duration'),
+                                            Integer::make('Rating', function($menu) {
+                                                return $menu->ratings->avg('rating');
+                                            }),
+
+                                            Integer::make('Duration', 'duration'),
+
+                                            Boolean::make('Available', 'duration'),
 
                                             Collection::make('Image', function($resource) {
-                                                    return $resource->getConversions($resource->getFirstMedia('image'), [
+                                                    return $resource->food->getConversions($resource->food->getFirstMedia('image'), [
                                                         'food-thumbnail', 'food-medium'
                                                     ]);
                                                 })
@@ -204,8 +224,7 @@ class Restaurant extends Schema
                                 }),
                         ];
                     });
-                }) 
-                ->onlyOnDetail(),    
+                }),    
 
             BelongsTo::make('Restaurant Type', 'type', RestaurantType::class),
 

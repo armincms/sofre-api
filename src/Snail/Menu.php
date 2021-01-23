@@ -21,7 +21,7 @@ class Menu extends Schema
      * @var array
      */
     public static $with = [
-        'food.group', 'restaurant.discounts'
+        'food.group', 'restaurant.discounts', 'ratings'
     ];
 
     /**
@@ -49,7 +49,7 @@ class Menu extends Schema
             }), 
 
             Number::make('Rating', function() {
-                return 1.3;
+                return $this->ratings->avg('rating');
             }), 
 
             Map::make('Material', function() {
@@ -69,26 +69,15 @@ class Menu extends Schema
 
             Number::make('Old Price', 'price'),
 
-            Number::make('Price', function() {
-                if($this->price > 0) {
-                    return $this->restaurant->discounts->filter->canApplyOn($this->food)->reduce(function($price, $discount) {
-                        return $discount->applyDiscount($price);
-                    }, $this->price); 
-                }
-
-                return 0;
+            Number::make('Price', function() {  
+                return $this->price ? $this->price() : 0;
             }), 
 
             Number::make('Discount', function() {
-                if($this->price > 0) {
-                    $amount = $this->restaurant->discounts->filter->canApplyOn($this->food)->reduce(function($price, $discount) {
-                        return $discount->applyDiscount($price);
-                    }, $this->price); 
+                $amount = $this->price ? $this->price() : 0;
 
-                    return intval($this->price - $amount) / $this->price * 100; 
-                }
 
-                return 0;
+                return intval($this->price - $amount) / ($this->price * 100 ?: 1); 
             }),  
 
             Collection::make('Image', function($resource) {
