@@ -181,7 +181,7 @@ class Restaurant extends Schema
 
                                             Number::make('Price', 'price')
                                                 ->displayUsing(function($value, $menu, $attribute) {
-                                                    return $this->discounts->applyOn($menu->price); 
+                                                    return $this->resource->foodDiscounts($menu)->applyOn($menu->price); 
                                                 }), 
 
                                             Text::make('Comments', function($menu) {
