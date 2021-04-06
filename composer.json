@@ -8,7 +8,7 @@
     "license": "MIT",
     "require": {
         "php": ">=7.1.0",
-        "armincms/sofre": "^0.10",
+        "armincms/sofre": "~0.11",
         "armincms/snail": "dev-master"
     },
     "autoload": {
