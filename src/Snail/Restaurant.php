@@ -55,9 +55,17 @@ class Restaurant extends Schema
 
             Number::make('Packaging Cost'), 
 
-            Map::make('Sending Method'), 
+            Map::make('Sending Method')->using(function($attribute, $value, $resource) {
+                return Text::make($attribute)->displayUsing(function($value) {
+                    return __(Str::title($value));
+                });
+            }), 
 
-            Map::make('Payment Method'),
+            Map::make('Payment Method')->using(function($attribute, $value, $resource) {
+                return Text::make($attribute)->displayUsing(function($value) {
+                    return __(Str::title($value));
+                });
+            }),
 
             Integer::make('Max Discount', function() {
                 $maxPercent = $this->discounts->filter->isPercentage()->max('discount.value');
@@ -278,12 +286,16 @@ class Restaurant extends Schema
                 ->using(function($attribute) {
                     return  Collection::make($attribute)->properties(function() {
                         return [
-                            Text::make('Day'),
+                            Text::make('Day')->displayUsing(function($value) {
+                                return __(Str::title($value));
+                            }),
 
                             Map::make('Hours')->using(function($attribute) { 
                                 return Collection::make($attribute)->properties(function() {
                                     return [
-                                        Text::make('Data'),
+                                        Text::make('Data')->displayUsing(function($value) {
+                                            return __(Str::title($value));
+                                        }), 
 
                                         Text::make('Hours')
                                             ->nullable(),
@@ -307,7 +319,9 @@ class Restaurant extends Schema
                 return $this->currentMeal();
             })->properties(function() {
                 return [
-                    Text::make('Meal', 'data')->nullable(),
+                    Text::make('Meal', 'data')->displayUsing(function($value) {
+                        return __(Str::title($value));
+                    })->nullable(),
 
                     Text::make('Hours', function($meal) {   
                         $today = Str::lower(now()->format('l'));
