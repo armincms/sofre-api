@@ -315,7 +315,7 @@ class Restaurant extends Schema
                 })
                 ->onlyOnDetail(), 
 
-            Collection::make('Serving', function() {
+            Collection::make('Serving', function() { 
                 return $this->currentMeal();
             })->properties(function() {
                 return [
@@ -323,24 +323,17 @@ class Restaurant extends Schema
                         return __(Str::title($value));
                     })->nullable(),
 
-                    Text::make('Hours', function($meal) {   
-                        $today = Str::lower(now()->format('l'));
-
-                        return $this->modifyMealHours($meal['hours'] ?? null, $meal['data'] ?? null, $today);
+                    Text::make('Hours', function($meal) { 
+                        return  $this->openingTime()->format('H:i') .'-'.
+                                $this->closingTime()->format('H:i');   
                     })->nullable(),
 
-                    Text::make('From', function($meal) {   
-                        $today = Str::lower(now()->format('l'));
-                        $hours = $this->modifyMealHours($meal['hours'] ?? null, $meal['data'] ?? null, $today);
-
-                        return Str::before($hours, '-');
+                    Text::make('From', function($meal) {    
+                        return $this->openingTime()->format('H:i');
                     })->nullable(),
 
-                    Text::make('To', function($meal) {   
-                        $today = Str::lower(now()->format('l'));
-                        $hours = $this->modifyMealHours($meal['hours'] ?? null, $meal['data'] ?? null, $today);
-
-                        return Str::after($hours, '-');
+                    Text::make('To', function($meal) {    
+                        return $this->closingTime()->format('H:i');
                     })->nullable(),
 
                     Boolean::make('Is Open', function($resource) { 
